@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#166534">
+<title>Sprouts Business</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--green:#166534;--green2:#15803d;--bg:#f4f7f4;--ink:#17231b;--muted:#647067;--line:#dce5dd;--white:#fff;--red:#b42318;--amber:#9a6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,"Noto Sans Devanagari",sans-serif}
+header{background:var(--green);color:#fff;padding:18px 16px 14px;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px #0002}
+header h1{margin:0;font-size:21px}header p{margin:3px 0 0;font-size:12px;opacity:.9}
+nav{display:flex;overflow:auto;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:4}
+nav button{flex:0 0 auto;border:0;background:white;padding:12px 13px;color:#526056;font-weight:650}
+nav button.active{color:var(--green);border-bottom:3px solid var(--green)}
+main{max-width:850px;margin:auto;padding:14px 12px 90px}
+section.page{display:none}section.page.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;box-shadow:0 1px 2px #00005}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.metric{border-radius:12px;padding:12px;background:#f0f7f1;border:1px solid #dcecdf}.metric small{display:block;color:var(--muted)}.metric strong{display:block;font-size:21px;margin-top:4px}
+label{display:block;font-size:13px;font-weight:650;margin:9px 0 4px}
+input,select,textarea{width:100%;border:1px solid #cbd6cd;border-radius:9px;padding:11px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:65px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+button.primary,.action{border:0;border-radius:9px;padding:11px 14px;background:var(--green);color:#fff;font-weight:700;font:inherit}
+button.secondary{border:1px solid #cbd6cd;background:#fff;color:var(--green);border-radius:9px;padding:9px 12px;font:inherit}
+button.danger{border:1px solid #f1c4c1;background:#fff;color:var(--red);border-radius:8px;padding:7px 9px}
+button:disabled{opacity:.5}
+.form-actions{display:flex;gap:8px;margin-top:12px}.form-actions button{flex:1}
+.item{border:1px solid var(--line);border-radius:11px;padding:11px;margin:8px 0;background:#fff}
+.itemtop{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.muted{color:var(--muted);font-size:12px}.amount{font-weight:750}
+.empty{padding:18px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}
+.badge{font-size:11px;padding:3px 7px;border-radius:99px;background:#eaf5ec;color:var(--green);font-weight:700}
+.badge.red{background:#fff0ef;color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:650}
+.tablewrap{overflow:auto}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar button{flex:1;min-width:120px}
+hr{border:0;border-top:1px solid var(--line);margin:13px 0}
+.note{background:#fff8e6;border:1px solid #f0dfae;color:#705000;border-radius:10px;padding:10px;font-size:12px}
+small.help{color:var(--muted)}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}}
+</style>
+</head>
+<body>
+<header><h1>🌱 Sprouts Business</h1><p>ग्राहक · डेली डिलीवरी · पेमेंट · उधारी · मासिक रिपोर्ट</p></header>
+<nav id="tabs">
+<button class="active" data-tab="home">डैशबोर्ड</button><button data-tab="customers">ग्राहक</button><button data-tab="daily">डेली एंट्री</button><button data-tab="payments">पेमेंट</button><button data-tab="expenses">खर्च</button><button data-tab="reports">मासिक रिपोर्ट</button><button data-tab="backup">बैकअप</button>
+</nav>
+<main>
+<section id="home" class="page active">
+<div class="card"><h2>आज का सारांश</h2><div class="grid" id="todayMetrics"></div></div>
+<div class="card"><h2>त्वरित काम</h2><div class="toolbar"><button class="primary" onclick="showTab('daily')">+ डेली डिलीवरी</button><button class="secondary" onclick="showTab('payments')">+ पेमेंट दर्ज करें</button><button class="secondary" onclick="showTab('customers')">+ ग्राहक जोड़ें</button></div></div>
+<div class="card"><h2>ग्राहकों का बकाया</h2><div id="homeDue"></div></div>
+</section>
+<section id="customers" class="page">
+<div class="card"><h2 id="custTitle">नया ग्राहक जोड़ें</h2>
+<input type="hidden" id="custId">
+<div class="formgrid">
+<div><label>ग्राहक का नाम *</label><input id="custName" placeholder="जैसे: राहुल शर्मा"></div>
+<div><label>मोबाइल नंबर</label><input id="custPhone" inputmode="tel" placeholder="मोबाइल नंबर"></div>
+<div><label>पूरा पता</label><textarea id="custAddress" placeholder="मकान नंबर, गली, क्षेत्र"></textarea></div>
+<div><label>रेट (₹ प्रति किलो) *</label><input id="custRate" type="number" min="0" step="0.01" placeholder="जैसे: 160"></div>
+</div>
+<div class="form-actions"><button class="primary" onclick="saveCustomer()">ग्राहक सेव करें</button><button class="secondary" onclick="clearCustomer()">रीसेट</button></div>
+</div><div class="card"><h2>ग्राहक सूची</h2><input id="custSearch" placeholder="नाम / मोबाइल से खोजें" oninput="renderCustomers()"><div id="customerList"></div></div>
+</section>
+<section id="daily" class="page">
+<div class="card"><h2>डेली डिलीवरी / अटेंडेंस एंट्री</h2>
+<label>तारीख</label><input type="date" id="delDate">
+<label>ग्राहक</label><select id="delCustomer"></select>
+<div class="row"><div><label>मात्रा (ग्राम)</label><input id="delQty" type="number" min="0" step="1" placeholder="जैसे 250"></div><div><label>रेट (₹ प्रति किलो)</label><input id="delRate" type="number" min="0" step="0.01"></div></div>
+<label>स्थिति</label><select id="delStatus"><option value="yes">डिलीवरी हुई</option><option value="no">डिलीवरी नहीं हुई</option></select>
+<label>नोट (वैकल्पिक)</label><input id="delNote" placeholder="जैसे: 2 पैकेट, बिना मूंग">
+<div class="form-actions"><button class="primary" onclick="saveDelivery()">डेली एंट्री सेव करें</button></div>
+<p class="muted">राशि मात्रा (ग्राम) × रेट प्रति किलो ÷ 1000 से अपने-आप निकलेगी। डिलीवरी नहीं हुई चुनने पर बिक्री शून्य रहेगी।</p>
+</div><div class="card"><h2>तारीख के अनुसार एंट्री</h2><label>एंट्री देखने की तारीख</label><input type="date" id="dailyFilter" onchange="renderDeliveries()"><div id="deliveryList"></div></div>
+</section>
+<section id="payments" class="page">
+<div class="card"><h2>ग्राहक से पेमेंट प्राप्त करें</h2>
+<label>तारीख</label><input type="date" id="payDate">
+<label>ग्राहक</label><select id="payCustomer"></select>
+<div class="row"><div><label>रकम (₹)</label><input id="payAmount" type="number" min="0.01" step="0.01"></div><div><label>तरीका</label><select id="payMethod"><option>Cash</option><option>UPI</option><option>Bank</option><option>अन्य</option></select></div></div>
+<label>नोट / ट्रांजैक्शन विवरण</label><input id="payNote" placeholder="वैकल्पिक">
+<button class="primary" style="width:100%;margin-top:12px" onclick="savePayment()">पेमेंट सेव करें</button>
+</div><div class="card"><h2>पेमेंट हिस्ट्री</h2><div id="paymentList"></div></div>
+</section>
+<section id="expenses" class="page">
+<div class="card"><h2>बिजनेस खर्च दर्ज करें</h2>
+<label>तारीख</label><input type="date" id="expDate">
+<label>खर्च का नाम</label><input id="expName" placeholder="जैसे: बीज, पैकिंग, डिलीवरी पेट्रोल">
+<div class="row"><div><label>रकम (₹)</label><input id="expAmount" type="number" min="0.01" step="0.01"></div><div><label>कैटेगरी</label><select id="expCategory"><option>बीज / कच्चा माल</option><option>पैकिंग</option><option>डिलीवरी</option><option>बिजली / पानी</option><option>मजदूरी</option><option>अन्य</option></select></div></div>
+<button class="primary" style="width:100%;margin-top:12px" onclick="saveExpense()">खर्च सेव करें</button>
+</div><div class="card"><h2>खर्च की सूची</h2><div id="expenseList"></div></div>
+</section>
+<section id="reports" class="page">
+<div class="card"><h2>मासिक विश्लेषण</h2><label>महीना चुनें</label><input type="month" id="reportMonth" onchange="renderReport()"><div id="reportContent"></div></div>
+<div class="card"><h2>ग्राहकवार पूरा बकाया</h2><div id="customerBalances"></div></div>
+</section>
+<section id="backup" class="page">
+<div class="card"><h2>डेटा बैकअप और Restore</h2><p>आपका डेटा इसी मोबाइल/ब्राउज़र में सेव होता है। मोबाइल बदलने या ऐप हटाने से पहले बैकअप डाउनलोड करें।</p>
+<div class="toolbar"><button class="primary" onclick="exportBackup()">पूरा बैकअप डाउनलोड</button><button class="secondary" onclick="exportCSV()">CSV रिपोर्ट डाउनलोड</button></div>
+<label>पुराना बैकअप वापस डालें (JSON)</label><input type="file" id="restoreFile" accept=".json,application/json">
+<button class="secondary" style="width:100%;margin-top:10px" onclick="restoreBackup()">बैकअप Restore करें</button>
+<hr><div class="note">ऑफलाइन ऐप: पहली बार ऐप इंस्टॉल/लोड करने के लिए इंटरनेट और HTTPS लिंक जरूरी है। उसके बाद यह ऐप उसी डिवाइस पर ऑफलाइन चल सकता है। डेटा अपने-आप क्लाउड में नहीं जाता। नियमित बैकअप रखें।</div>
+</div>
+</section>
+</main>
+<script>
+const KEY='sprouts_business_complete_v1';
+let db=loadDB();
+function loadDB(){try{return JSON.parse(localStorage.getItem(KEY))||{customers:[],deliveries:[],payments:[],expenses:[]}}catch(e){return {customers:[],deliveries:[],payments:[],expenses:[]}}}
+function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));refreshAll()}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function today(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function money(n){return '₹'+(Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showTab(t){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===t));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));if(t==='reports')renderReport();window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function setDefaults(){['delDate','dailyFilter','payDate','expDate'].forEach(x=>document.getElementById(x).value=today());document.getElementById('reportMonth').value=today().slice(0,7)}
+function customerOptions(){let opts='<option value="">ग्राहक चुनें</option>'+db.customers.slice().sort((a,b)=>a.name.localeCompare(b.name,'hi')).map(c=>`<option value="${c.id}">${esc(c.name)} (${esc(c.phone||'मोबाइल नहीं')})</option>`).join('');['delCustomer','payCustomer'].forEach(x=>document.getElementById(x).innerHTML=opts)}
+document.getElementById('delCustomer').addEventListener('change',e=>{let c=db.customers.find(x=>x.id===e.target.value);if(c)document.getElementById('delRate').value=c.rate});
+function saveCustomer(){let cid=document.getElementById('custId').value,name=document.getElementById('custName').value.trim(),rate=Number(document.getElementById('custRate').value);if(!name||!Number.isFinite(rate)||rate<0){alert('ग्राहक का नाम और सही रेट भरें।');return}
+let c={id:cid||id(),name,phone:document.getElementById('custPhone').value.trim(),address:document.getElementById('custAddress').value.trim(),rate};if(cid)db.customers=db.customers.map(x=>x.id===cid?c:x);else db.customers.push(c);clearCustomer();saveDB()}
+function clearCustomer(){['custId','custName','custPhone','custAddress','custRate'].forEach(x=>document.getElementById(x).value='');document.getElementById('custTitle').textContent='नया ग्राहक जोड़ें'}
+function editCustomer(cid){let c=db.customers.find(x=>x.id===cid);if(!c)return;document.getElementById('custId').value=c.id;document.getElementById('custName').value=c.name;document.getElementById('custPhone').value=c.phone;document.getElementById('custAddress').value=c.address;document.getElementById('custRate').value=c.rate;document.getElementById('custTitle').textContent='ग्राहक की जानकारी बदलें';window.scrollTo(0,0)}
+function deleteCustomer(cid){if(!confirm('ग्राहक हटाएँ? पुराने डिलीवरी/पेमेंट रिकॉर्ड रहेंगे।'))return;db.customers=db.customers.filter(c=>c.id!==cid);saveDB()}
+function renderCustomers(){let q=(document.getElementById('custSearch').value||'').toLowerCase();let arr=db.customers.filter(c=>(c.name+' '+c.phone+' '+c.address).toLowerCase().includes(q));document.getElementById('customerList').innerHTML=arr.length?arr.map(c=>`<div class="item"><div class="itemtop"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.phone)} · ${esc(c.address)}</div><div class="muted">रेट: ${money(c.rate)} / किलो · बकाया: <b>${money(balance(c.id))}</b></div></div><div><button class="secondary" onclick="editCustomer('${c.id}')">बदलें</button> <button class="danger" onclick="deleteCustomer('${c.id}')">हटाएँ</button></div></div></div>`).join(''):'<div class="empty">अभी कोई ग्राहक नहीं। ऊपर से पहला ग्राहक जोड़ें।</div>'}
+function balance(cid,upto='9999-12-31'){let sales=db.deliveries.filter(d=>d.cid===cid&&d.status==='yes'&&d.date<=upto).reduce((s,d)=>s+d.amount,0),paid=db.payments.filter(p=>p.cid===cid&&p.date<=upto).reduce((s,p)=>s+p.amount,0);return sales-paid}
+function saveDelivery(){let cid=document.getElementById('delCustomer').value,date=document.getElementById('delDate').value,qty=Number(document.getElementById('delQty').value),rate=Number(document.getElementById('delRate').value),status=document.getElementById('delStatus').value;if(!cid||!date){alert('तारीख और ग्राहक चुनें।');return}if(status==='yes'&&(!qty||qty<=0||rate<0)){alert('डिलीवरी के लिए सही मात्रा और रेट भरें।');return}let c=db.customers.find(x=>x.id===cid),amount=status==='yes'?qty/1000*rate:0;db.deliveries.push({id:id(),cid,cname:c.name,date,qty:status==='yes'?qty:0,rate,status,amount,note:document.getElementById('delNote').value.trim()});document.getElementById('delQty').value='';document.getElementById('delNote').value='';saveDB()}
+function renderDeliveries(){let date=document.getElementById('dailyFilter').value,arr=db.deliveries.filter(d=>d.date===date).sort((a,b)=>a.cname.localeCompare(b.cname,'hi'));document.getElementById('deliveryList').innerHTML=arr.length?arr.map(d=>`<div class="item"><div class="itemtop"><div><b>${esc(d.cname)}</b><div class="muted">${d.status==='yes'?'डिलीवरी हुई':'डिलीवरी नहीं हुई'} · ${d.qty} ग्राम · ${money(d.amount)}</div><div class="muted">${esc(d.note)}</div></div><button class="danger" onclick="delRecord('deliveries','${d.id}')">हटाएँ</button></div></div>`).join(''):'<div class="empty">इस तारीख की कोई एंट्री नहीं।</div>'}
+function savePayment(){let cid=document.getElementById('payCustomer').value,date=document.getElementById('payDate').value,amount=Number(document.getElementById('payAmount').value);if(!cid||!date||!amount||amount<=0){alert('ग्राहक, तारीख और सही पेमेंट राशि भरें।');return}let c=db.customers.find(x=>x.id===cid);db.payments.push({id:id(),cid,cname:c.name,date,amount,method:document.getElementById('payMethod').value,note:document.getElementById('payNote').value.trim()});document.getElementById('payAmount').value='';document.getElementById('payNote').value='';saveDB()}
+function renderPayments(){let arr=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date));document.getElementById('paymentList').innerHTML=arr.length?arr.map(p=>`<div class="item"><div class="itemtop"><div><b>${esc(p.cname)}</b> · <span class="amount">${money(p.amount)}</span><div class="muted">${p.date} · ${esc(p.method)} · ${esc(p.note)}</div></div><button class="danger" onclick="delRecord('payments','${p.id}')">हटाएँ</button></div></div>`).join(''):'<div class="empty">अभी कोई पेमेंट दर्ज नहीं।</div>'}
+function saveExpense(){let date=document.getElementById('expDate').value,name=document.getElementById('expName').value.trim(),amount=Number(document.getElementById('expAmount').value);if(!date||!name||!amount||amount<=0){alert('तारीख, खर्च का नाम और सही राशि भरें।');return}db.expenses.push({id:id(),date,name,amount,category:document.getElementById('expCategory').value});document.getElementById('expName').value='';document.getElementById('expAmount').value='';saveDB()}
+function renderExpenses(){let arr=db.expenses.slice().sort((a,b)=>b.date.localeCompare(a.date));document.getElementById('expenseList').innerHTML=arr.length?arr.map(e=>`<div class="item"><div class="itemtop"><div><b>${esc(e.name)}</b> · ${money(e.amount)}<div class="muted">${e.date} · ${esc(e.category)}</div></div><button class="danger" onclick="delRecord('expenses','${e.id}')">हटाएँ</button></div></div>`).join(''):'<div class="empty">अभी कोई खर्च दर्ज नहीं।</div>'}
+function delRecord(type,rid){if(!confirm('यह रिकॉर्ड हटाएँ?'))return;db[type]=db[type].filter(x=>x.id!==rid);saveDB()}
+function monthRange(m){let [y,mo]=m.split('-').map(Number);return {start:`${y}-${String(mo).padStart(2,'0')}-01`,end:`${y}-${String(mo).padStart(2,'0')}-${new Date(y,mo,0).getDate()}`}}
+function sum(a,k){return a.reduce((s,x)=>s+(Number(x[k])||0),0)}
+function renderReport(){let m=document.getElementById('reportMonth').value||today().slice(0,7),r=monthRange(m),prev=new Date(Number(m.slice(0,4)),Number(m.slice(5,7))-2,1),pm=`${prev.getFullYear()}-${String(prev.getMonth()+1).padStart(2,'0')}`,pr=monthRange(pm);let ds=db.deliveries.filter(x=>x.date>=r.start&&x.date<=r.end),ps=db.payments.filter(x=>x.date>=r.start&&x.date<=r.end),es=db.expenses.filter(x=>x.date>=r.start&&x.date<=r.end),pds=db.deliveries.filter(x=>x.date>=pr.start&&x.date<=pr.end),sales=sum(ds.filter(x=>x.status==='yes'),'amount'),received=sum(ps,'amount'),expense=sum(es,'amount'),qty=sum(ds,'qty'),delivered=ds.filter(x=>x.status==='yes').length,opening=db.customers.reduce((s,c)=>s+balance(c.id,dayBefore(r.start)),0),closing=db.customers.reduce((s,c)=>s+balance(c.id,r.end),0),profit=sales-expense;
+document.getElementById('reportContent').innerHTML=`<div class="grid" style="margin-top:12px"><div class="metric"><small>कुल बिक्री</small><strong>${money(sales)}</strong></div><div class="metric"><small>पेमेंट प्राप्त</small><strong>${money(received)}</strong></div><div class="metric"><small>कुल खर्च</small><strong>${money(expense)}</strong></div><div class="metric"><small>अनुमानित लाभ</small><strong>${money(profit)}</strong></div><div class="metric"><small>महीने की शुरुआत का बकाया</small><strong>${money(opening)}</strong></div><div class="metric"><small>अगले महीने जाने वाला बकाया</small><strong>${money(closing)}</strong></div><div class="metric"><small>डिलीवरी एंट्री</small><strong>${delivered}</strong></div><div class="metric"><small>कुल मात्रा</small><strong>${qty.toLocaleString('en-IN')} g</strong></div></div><hr><p><b>महीने का विश्लेषण:</b> बिक्री ${money(sales)} में से खर्च ${money(expense)} घटाने पर अनुमानित लाभ ${money(profit)} है। इस महीने पेमेंट ${money(received)} प्राप्त हुआ। महीने के अंत में कुल ग्राहक बकाया ${money(closing)} है।</p><p class="muted">पिछले महीने की बिक्री: ${money(sum(pds.filter(x=>x.status==='yes'),'amount'))} · इस महीने की बिक्री में बदलाव: ${money(sales-sum(pds.filter(x=>x.status==='yes'),'amount'))}</p><p class="muted">ध्यान दें: लाभ = दर्ज बिक्री − दर्ज खर्च। मालिक की निकासी, टैक्स या अन्य खर्च दर्ज न हों तो वास्तविक लाभ अलग हो सकता है।`;
+let rows=db.customers.map(c=>({c,b:balance(c.id,r.end)})).filter(x=>Math.abs(x.b)>0.009).sort((a,b)=>b.b-a.b);document.getElementById('customerBalances').innerHTML=rows.length?`<div class="tablewrap"><table><thead><tr><th>ग्राहक</th><th>मोबाइल</th><th>बाकी</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.c.name)}</td><td>${esc(x.c.phone)}</td><td>${money(x.b)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">कोई बकाया नहीं।</div>'}
+function dayBefore(s){let d=new Date(s+'T00:00:00');d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function renderHome(){let t=today(),ds=db.deliveries.filter(x=>x.date===t),sales=sum(ds.filter(x=>x.status==='yes'),'amount'),p=sum(db.payments.filter(x=>x.date===t),'amount'),due=db.customers.reduce((s,c)=>s+Math.max(0,balance(c.id)),0);document.getElementById('todayMetrics').innerHTML=`<div class="metric"><small>आज की डिलीवरी</small><strong>${ds.filter(x=>x.status==='yes').length}</strong></div><div class="metric"><small>आज की बिक्री</small><strong>${money(sales)}</strong></div><div class="metric"><small>आज पेमेंट आया</small><strong>${money(p)}</strong></div><div class="metric"><small>कुल बाकी</small><strong>${money(due)}</strong></div>`;let rows=db.customers.map(c=>({c,b:balance(c.id)})).filter(x=>x.b>0.009).sort((a,b)=>b.b-a.b).slice(0,8);document.getElementById('homeDue').innerHTML=rows.length?rows.map(x=>`<div class="item itemtop"><div><b>${esc(x.c.name)}</b><div class="muted">${esc(x.c.phone)}</div></div><span class="amount">${money(x.b)}</span></div>`).join(''):'<div class="empty">कोई बकाया नहीं।</div>'}
+function refreshAll(){customerOptions();renderCustomers();renderDeliveries();renderPayments();renderExpenses();renderHome();renderReport()}
+function download(name,content,type){let a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportBackup(){download('Sprouts_Business_Backup_'+today()+'.json',JSON.stringify(db,null,2),'application/json')}
+function restoreBackup(){let f=document.getElementById('restoreFile').files[0];if(!f){alert('पहले JSON बैकअप फाइल चुनें।');return}let rd=new FileReader();rd.onload=()=>{try{let x=JSON.parse(rd.result);if(!x.customers||!x.deliveries||!x.payments||!x.expenses)throw 0;if(!confirm('मौजूदा डेटा बदलकर बैकअप Restore करें? पहले मौजूदा डेटा का बैकअप लें।'))return;db=x;saveDB();alert('बैकअप Restore हो गया।')}catch(e){alert('यह सही Sprouts Business बैकअप फाइल नहीं है।')}};rd.readAsText(f)}
+function exportCSV(){let lines=[['Type','Date','Customer','Phone','Quantity_g','Rate_per_kg','Amount','Details']];db.deliveries.forEach(d=>{let c=db.customers.find(x=>x.id===d.cid)||{};lines.push(['Delivery',d.date,d.cname,c.phone||'',d.qty,d.rate,d.amount,d.status+' '+d.note])});db.payments.forEach(p=>{let c=db.customers.find(x=>x.id===p.cid)||{};lines.push(['Payment',p.date,p.cname,c.phone||'','','',p.amount,p.method+' '+p.note])});db.expenses.forEach(e=>lines.push(['Expense',e.date,'','','','',e.amount,e.category+' '+e.name]));let csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('Sprouts_Business_Report_'+today()+'.csv','\ufeff'+csv,'text/csv;charset=utf-8')}
+setDefaults();refreshAll();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
